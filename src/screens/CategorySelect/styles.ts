@@ -3,7 +3,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Feather } from '@expo/vector-icons';
 
 //Check documentation at docs.swmansion.com React Native Gesture Handler
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureHandlerRootView, RectButton } from 'react-native-gesture-handler';
 
 import theme from '../../global/styles/theme';
 
@@ -33,7 +33,7 @@ export const Title = styled.Text`
     font-size: ${RFValue(18)}px;
 `;
 
-export const Category = styled.TouchableOpacity<CategoryProps>`
+export const Category = styled(RectButton)<CategoryProps>`
     width: 100%;
     padding: ${RFValue(15)}px;
 
