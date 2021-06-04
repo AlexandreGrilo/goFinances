@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'styled-components';
+import { useAuth } from '../../hooks/auth';
 
 import { HighlightCard } from '../../components/HighlightCard';
 import { TransactionCard, TransactionCardProps } from '../../components/TransactionCard';
@@ -47,6 +48,7 @@ export function Dashboard() {
     const [highlightCardData, setHighlightCardData] = useState<HighlightCardData>({} as HighlightCardData);
     
     const theme = useTheme();
+    const { user, signOut } = useAuth();
 
     const deviceLanguage = 'en-EN';
     //   Platform.OS === 'ios'
@@ -60,16 +62,21 @@ export function Dashboard() {
         collection: DataListProps[],
         type: 'positive' | 'negative'
     ) {
+        const collectionFilttered = collection
+            .filter(transaction => transaction.type === type);
+
+        if (collectionFilttered.length === 0) {
+            return 0;
+        }
         const lastTransaction = new Date(
-            Math.max.apply(Math, collection
-                .filter(transaction => transaction.type === type)
+            Math.max.apply(Math, collectionFilttered
                 .map(transaction => new Date(transaction.date).getTime()))
         );
         return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString('pt-BR', { month: 'long' })}`;
     }
 
     async function loadTransactions() {
-        const dataKey = '@gofinances:transactions';
+        const dataKey = `@gofinances:transactions_user:${user.id}`;
         const response = await AsyncStorage.getItem(dataKey);
         const transactions = response ? JSON.parse(response) : [];
 
@@ -119,21 +126,27 @@ export function Dashboard() {
                     style: 'currency',
                     currency: 'EUR'
                 }),
-                lastTransaction: `Última entrada dia ${lastTransactionIncome}`
+                lastTransaction: lastTransactionIncome === 0 
+                    ? 'Não há transações'
+                    : `Última entrada dia ${lastTransactionIncome}`
             },
             outcomes: {
                 amount: outcomesTotal.toLocaleString(deviceLanguage, {
                     style: 'currency',
                     currency: 'EUR'
                 }),
-                lastTransaction: `Última saída dia ${lastTransactionOutcome}`
+                lastTransaction: lastTransactionOutcome === 0 
+                    ? 'Não há transações'
+                    : `Última saída dia ${lastTransactionOutcome}`
             },
             total: {
                 amount: total.toLocaleString(deviceLanguage, {
                     style: 'currency',
                     currency: 'EUR'
                 }),
-                lastTransaction: `01 à ${lastTransactionIncome}`
+                lastTransaction: lastTransactionIncome === 0 
+                    ? 'Não há transações'
+                    : `01 à ${lastTransactionIncome}`
             }
         });
 
@@ -159,19 +172,19 @@ export function Dashboard() {
                             <UserWrapper>
                                 <UserInfo>
                                     <Photo 
-                                        source={{ uri: 'https://github.com/AlexandreGrilo.png'}}
+                                        source={{ uri: user.photo}}
                                     />
                                     <User>
                                         <UserGreeting>
                                             Olá,
                                         </UserGreeting>
                                         <Username>
-                                            Alexandre
+                                            {user.name}
                                         </Username>
                                     </User>
                                 </UserInfo>
                                 
-                                <LogoutButton onPress={() => {}}>
+                                <LogoutButton onPress={signOut}>
                                     <Icon name="power" />
                                 </LogoutButton>
                             </UserWrapper>
