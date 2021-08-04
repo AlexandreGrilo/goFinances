@@ -76,6 +76,7 @@ export function Register() {
     }
 
     function handleCloseSelectCategoryModal() {
+        console.log("#############")
         setCategoryModalOpen(false);
     }
 
@@ -177,11 +178,15 @@ export function Register() {
                         onPress={handleSubmit(handleRegister)}
                     />
 
-                    <Modal visible={categoryModalOpen}>
+                    <Modal
+                        visible={categoryModalOpen}
+                        animationType="fade"
+                        transparent={false}
+                    >
                         <CategorySelect
                             category={category}
                             setCategory={setCategory}
-                            closeSelectCategory={handleCloseSelectCategoryModal}
+                            closeSelectCategory={() => handleCloseSelectCategoryModal()}
                         />
                     </Modal>
                 </Form>
